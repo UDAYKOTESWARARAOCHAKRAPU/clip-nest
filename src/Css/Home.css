@@ -1,0 +1,114 @@
+.home-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1e1e2f, #2c3e50);
+    color: white;
+    padding: 60px 20px;
+    text-align: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .home-title {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    word-wrap: break-word;
+  }
+  
+  .home-title span {
+    color: #00bcd4;
+  }
+  
+  .home-subtitle {
+    font-size: 1.2rem;
+    margin-bottom: 40px;
+    color: #d0d0d0;
+    padding: 0 10px;
+  }
+  
+  .card-container {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 1000px;
+  }
+  
+  .card {
+    background-color: #292b3e;
+    border-radius: 15px;
+    padding: 25px 30px;
+    width: 220px;
+    height: 160px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .card:hover {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    transform: translateY(-5px);
+  }
+  
+  .card h3 {
+    margin-top: 12px;
+    font-size: 1.2rem;
+  }
+  
+  .youtube {
+    background: #ff0000;
+    color: white;
+  }
+  
+  .facebook {
+    background: #3b5998;
+    color: white;
+  }
+  
+  .instagram {
+    background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
+    color: white;
+  }
+  
+  /* Responsive Adjustments */
+  @media screen and (max-width: 768px) {
+    .home-title {
+      font-size: 2.4rem;
+    }
+  
+    .card {
+      width: 180px;
+      height: 150px;
+      padding: 20px;
+    }
+  
+    .card h3 {
+      font-size: 1.1rem;
+    }
+  }
+  
+  @media screen and (max-width: 480px) {
+    .home-title {
+      font-size: 2rem;
+    }
+  
+    .home-subtitle {
+      font-size: 1rem;
+    }
+  
+    .card {
+      width: 160px;
+      height: 140px;
+    }
+  
+    .card-container {
+      gap: 20px;
+    }
+  }
+  
