@@ -1,38 +1,201 @@
-.App {
-  text-align: center;
+/* Global background styles with enhanced animations */
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  font-family: 'Poppins', sans-serif;
+  overflow-x: hidden;
 }
 
-.App-logo {
-  height: 40vmin;
+.app-wrapper {
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  animation: gradientRotate 25s ease-in-out infinite;
+}
+
+/* Rotating gradient animation while keeping colors */
+@keyframes gradientRotate {
+  0% {
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  }
+  25% {
+    background: linear-gradient(225deg, #0f0c29, #302b63, #24243e);
+  }
+  50% {
+    background: linear-gradient(315deg, #0f0c29, #302b63, #24243e);
+  }
+  75% {
+    background: linear-gradient(45deg, #0f0c29, #302b63, #24243e);
+  }
+  100% {
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  }
+}
+
+/* Subtle shimmer effect for depth */
+.app-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.05) 50%, rgba(255, 255, 255, 0) 100%);
+  opacity: 0.4;
+  pointer-events: none;
+  animation: shimmer 10s linear infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0.4;
+  }
+}
+
+/* Enhanced radial glow effect */
+.app-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
+  pointer-events: none;
+  /* animation: glowPulse 6s ease-in-out infinite; */
+}
+
+@keyframes glowPulse {
+  0% {
+    opacity: 0.2;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.15);
+  }
+  100% {
+    opacity: 0.2;
+    transform: scale(0.8);
+  }
+}
+
+/* Dynamic particle effect with varied sizes and paths */
+.particle-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.particle-layer::before,
+.particle-layer::after,
+.particle-layer span:nth-child(1),
+.particle-layer span:nth-child(2),
+.particle-layer span:nth-child(3) {
+  content: '';
+  position: absolute;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
   pointer-events: none;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+.particle-layer::before {
+  width: 4px;
+  height: 4px;
+  top: 15%;
+  left: 5%;
+  animation: particleFloat1 20s linear infinite;
+}
+
+.particle-layer::after {
+  width: 6px;
+  height: 6px;
+  top: 50%;
+  left: 70%;
+  animation: particleFloat2 15s linear infinite;
+  animation-delay: 3s;
+}
+
+.particle-layer span:nth-child(1) {
+  width: 3px;
+  height: 3px;
+  top: 30%;
+  left: 20%;
+  animation: particleFloat3 18s linear infinite;
+  animation-delay: 1s;
+}
+
+.particle-layer span:nth-child(2) {
+  width: 5px;
+  height: 5px;
+  top: 70%;
+  left: 40%;
+  animation: particleFloat1 22s linear infinite;
+  animation-delay: 5s;
+}
+
+.particle-layer span:nth-child(3) {
+  width: 2px;
+  height: 2px;
+  top: 10%;
+  left: 90%;
+  animation: particleFloat2 17s linear infinite;
+  animation-delay: 2s;
+}
+
+@keyframes particleFloat1 {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate(60vw, 40vh);
+    opacity: 0;
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+@keyframes particleFloat2 {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0.3;
   }
-  to {
-    transform: rotate(360deg);
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate(-50vw, 30vh);
+    opacity: 0;
+  }
+}
+
+@keyframes particleFloat3 {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translate(40vw, -20vh);
+    opacity: 0;
   }
 }

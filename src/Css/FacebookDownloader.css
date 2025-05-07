@@ -1,0 +1,297 @@
+.facebook-downloader-wrapper {
+    min-height: calc(100vh - 120px);
+  }
+  
+  .facebook-downloader-container {
+    color: white;
+    padding: 80px 20px;
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .title-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  .facebook-icon {
+    color: #3b5998;
+  }
+  
+  .facebook-downloader-title {
+    font-size: 3.5rem;
+    margin-bottom: 15px;
+    word-wrap: break-word;
+    background: linear-gradient(90deg, #3b5998, #2a4373);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  
+  .facebook-downloader-subtitle {
+    font-size: 1.3rem;
+    margin-bottom: 50px;
+    color: #e0e0e0;
+    padding: 0 15px;
+    max-width: 600px;
+  }
+  
+  .input-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+    max-width: 600px;
+  }
+  
+  .url-input {
+    width: 100%;
+    padding: 15px 20px;
+    border-radius: 10px;
+    border: none;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 1rem;
+    font-family: 'Poppins', sans-serif;
+    outline: none;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+  }
+  
+  .url-input:focus {
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 5px 20px rgba(59, 89, 152, 0.3);
+  }
+  
+  .url-input::placeholder {
+    color: #a0a0a0;
+  }
+  
+  .search-button {
+    padding: 15px 40px;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(90deg, #3b5998, #2a4373);
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+  }
+  
+  .search-button:disabled {
+    background: linear-gradient(90deg, #4a5e72, #6b4e5a);
+    cursor: not-allowed;
+  }
+  
+  .video-info {
+    margin-top: 40px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 20px;
+    max-width: 600px;
+    width: 100%;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  .video-thumbnail {
+    width: 100%;
+    max-width: 320px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  }
+  
+  .video-title {
+    font-size: 1.5rem;
+    margin: 0;
+    color: #ffffff;
+    text-align: center;
+  }
+  
+  .video-duration {
+    font-size: 1rem;
+    color: #d0d0d0;
+    margin: 0;
+  }
+  
+  .video-description {
+    font-size: 0.9rem;
+    color: #b0b0b0;
+    margin: 0;
+    text-align: center;
+    max-width: 90%;
+  }
+  
+  .quality-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  
+  .quality-selector label {
+    font-size: 1rem;
+    color: #e0e0e0;
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  .quality-selector select {
+    padding: 8px 15px;
+    border-radius: 5px;
+    border: none;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 1rem;
+    font-family: 'Poppins', sans-serif;
+    outline: none;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px;
+    padding-right: 30px;
+  }
+  
+  .quality-selector select:focus {
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 3px 15px rgba(59, 89, 152, 0.3);
+  }
+  
+  .quality-selector select:disabled {
+    background: rgba(255, 255, 255, 0.05);
+    cursor: not-allowed;
+  }
+  
+  .quality-selector select option {
+    background: #24243e;
+    color: white;
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  .download-button {
+    padding: 15px 40px;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(90deg, #3b5998, #2a4373);
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+  }
+  
+  .download-button:disabled {
+    background: linear-gradient(90deg, #4a5e72, #6b4e5a);
+    cursor: not-allowed;
+  }
+  
+  .loader {
+    width: 24px;
+    height: 24px;
+    border: 3px solid white;
+    border-top: 3px solid transparent;
+    border-radius: 50%;
+  }
+  
+  /* Responsive Adjustments */
+  @media screen and (max-width: 768px) {
+    .facebook-downloader-title {
+      font-size: 2.8rem;
+    }
+  
+    .url-input {
+      padding: 12px 15px;
+      font-size: 0.9rem;
+    }
+  
+    .search-button, .download-button {
+      padding: 12px 30px;
+      font-size: 1rem;
+    }
+  
+    .video-title {
+      font-size: 1.3rem;
+    }
+  
+    .video-description {
+      font-size: 0.85rem;
+    }
+  
+    .video-thumbnail {
+      max-width: 280px;
+    }
+  
+    .quality-selector label {
+      font-size: 0.9rem;
+    }
+  
+    .quality-selector select {
+      padding: 6px 12px;
+      font-size: 0.9rem;
+      background-size: 14px;
+      padding-right: 28px;
+    }
+  }
+  
+  @media screen and (max-width: 480px) {
+    .facebook-downloader-title {
+      font-size: 2.2rem;
+    }
+  
+    .facebook-downloader-subtitle {
+      font-size: 1.1rem;
+    }
+  
+    .url-input {
+      padding: 10px 12px;
+      font-size: 0.85rem;
+    }
+  
+    .search-button, .download-button {
+      padding: 10px 25px;
+      font-size: 0.9rem;
+    }
+  
+    .video-title {
+      font-size: 1.1rem;
+    }
+  
+    .video-description {
+      font-size: 0.8rem;
+    }
+  
+    .video-thumbnail {
+      max-width: 240px;
+    }
+  
+    .quality-selector label {
+      font-size: 0.85rem;
+    }
+  
+    .quality-selector select {
+      padding: 5px 10px;
+      font-size: 0.85rem;
+      background-size: 12px;
+      padding-right: 25px;
+    }
+  }

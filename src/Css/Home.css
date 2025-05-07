@@ -1,114 +1,135 @@
+.home-wrapper {
+  min-height: calc(100vh - 120px);
+}
+
 .home-container {
-    min-height: 100vh;
-    background: linear-gradient(135deg, #1e1e2f, #2c3e50);
-    color: white;
-    padding: 60px 20px;
-    text-align: center;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
+  color: white;
+  padding: 80px 20px;
+  text-align: center;
+  font-family: 'Poppins', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-title {
+  font-size: 3.5rem;
+  margin-bottom: 15px;
+  word-wrap: break-word;
+  background: linear-gradient(90deg, #00bcd4, #ff6f61);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.home-title span {
+  background: linear-gradient(90deg, #ff6f61, #00bcd4);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.home-subtitle {
+  font-size: 1.3rem;
+  margin-bottom: 50px;
+  color: #e0e0e0;
+  padding: 0 15px;
+  max-width: 600px;
+}
+
+.card-container {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 1200px;
+}
+
+.card {
+  background: linear-gradient(145deg, #2a2b4e, #1e1e3f);
+  border-radius: 20px;
+  padding: 30px;
+  width: 240px;
+  height: 180px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+.card h3 {
+  margin-top: 15px;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.youtube {
+  background: linear-gradient(145deg, #ff0000, #cc0000);
+}
+
+.facebook {
+  background: linear-gradient(145deg, #3b5998, #2a4373);
+}
+
+.instagram {
+  background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
+}
+
+/* Responsive Adjustments */
+@media screen and (max-width: 768px) {
   .home-title {
-    font-size: 3rem;
-    margin-bottom: 10px;
-    word-wrap: break-word;
+    font-size: 2.8rem;
   }
-  
-  .home-title span {
-    color: #00bcd4;
-  }
-  
-  .home-subtitle {
-    font-size: 1.2rem;
-    margin-bottom: 40px;
-    color: #d0d0d0;
-    padding: 0 10px;
-  }
-  
-  .card-container {
-    display: flex;
-    justify-content: center;
-    gap: 30px;
-    flex-wrap: wrap;
-    width: 100%;
-    max-width: 1000px;
-  }
-  
+
   .card {
-    background-color: #292b3e;
-    border-radius: 15px;
-    padding: 25px 30px;
-    width: 220px;
+    width: 200px;
     height: 160px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    padding: 25px;
   }
-  
-  .card:hover {
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-    transform: translateY(-5px);
-  }
-  
+
   .card h3 {
-    margin-top: 12px;
     font-size: 1.2rem;
   }
-  
-  .youtube {
-    background: #ff0000;
-    color: white;
+}
+
+@media screen and (max-width: 480px) {
+  .home-title {
+    font-size: 2.2rem;
   }
-  
-  .facebook {
-    background: #3b5998;
-    color: white;
+
+  .home-subtitle {
+    font-size: 1.1rem;
   }
-  
-  .instagram {
-    background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
-    color: white;
+
+  .card {
+    width: 180px;
+    height: 150px;
   }
-  
-  /* Responsive Adjustments */
-  @media screen and (max-width: 768px) {
-    .home-title {
-      font-size: 2.4rem;
-    }
-  
-    .card {
-      width: 180px;
-      height: 150px;
-      padding: 20px;
-    }
-  
-    .card h3 {
-      font-size: 1.1rem;
-    }
+
+  .card-container {
+    gap: 25px;
   }
-  
-  @media screen and (max-width: 480px) {
-    .home-title {
-      font-size: 2rem;
-    }
-  
-    .home-subtitle {
-      font-size: 1rem;
-    }
-  
-    .card {
-      width: 160px;
-      height: 140px;
-    }
-  
-    .card-container {
-      gap: 20px;
-    }
-  }
-  
+}

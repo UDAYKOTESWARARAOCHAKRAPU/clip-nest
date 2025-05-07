@@ -1,0 +1,10 @@
+.footer {
+    padding: 20px;
+    text-align: center;
+    /* background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px); */
+    color: #e0e0e0;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+  }
