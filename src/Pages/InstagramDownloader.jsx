@@ -22,56 +22,71 @@ const InstagramDownloader = () => {
     setIsModalOpen(false);
   };
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     if (!url || !url.includes('instagram.com')) {
       alert('Please enter a valid Instagram URL');
       return;
     }
     setIsLoading(true);
-    // Simulate fetching metadata based on content type (replace with actual API call in production)
-    setTimeout(() => {
-      setIsLoading(false);
-      if (contentType === 'Photo') {
-        setContentData({
-          type: 'Photo',
-          thumbnail: "https://via.placeholder.com/320x320.png?text=Instagram+Photo",
-          description: "A photo from the Instagram post."
-        });
-      } else if (contentType === 'Reel') {
-        setContentData({
-          type: 'Reel',
-          thumbnail: "https://via.placeholder.com/320x180.png?text=Instagram+Reel",
-          duration: "0:15",
-          qualities: ['360p', '480p', '720p', '1080p'],
-          description: "A reel from the Instagram profile."
-        });
+    try {
+      const response = await fetch('http://localhost:5000/api/instagram/metadata', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url, contentType }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch metadata');
       }
-    }, 2000);
+
+      const data = await response.json();
+      setContentData(data);
+    } catch (error) {
+      alert(`Error: ${error.message}`);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleDownload = () => {
-    if (!contentData) {
+  const handleDownload = async () => {
+    if (!contentData || !contentData.download_url) {
       alert('No content data available to download');
       return;
     }
     setIsDownloading(true);
-    // Simulate a download process (replace with actual backend API call in production)
-    setTimeout(() => {
-      setIsDownloading(false);
-      // Simulate creating a downloadable link (for demo purposes)
-      const dummyUrl = contentType === 'Reel' 
-        ? 'https://www.w3schools.com/html/mov_bbb.mp4' 
-        : 'https://via.placeholder.com/320x320.png'; // Placeholder for photos
+    try {
+      const downloadUrl = contentType === 'Reel' 
+        ? `${contentData.download_url}?quality=${selectedQuality}` 
+        : contentData.download_url;
+
+      const response = await fetch(`http://localhost:5000${downloadUrl}`, {
+        method: 'GET',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to download content');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = dummyUrl;
+      link.href = url;
       link.download = contentType === 'Reel' 
-        ? `${contentData.type}_${selectedQuality}.mp4` 
-        : `${contentData.type}.png`;
+        ? `reel_${selectedQuality}.mp4` 
+        : 'photo.jpg';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
       alert(`Download completed: ${contentData.type}${contentType === 'Reel' ? ` (${selectedQuality})` : ''}`);
-    }, 2000);
+    } catch (error) {
+      alert(`Error: ${error.message}`);
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   const containerVariants = {
