@@ -6,6 +6,7 @@ import Navbar from './Components/Navbar';
 import Footer from './Components/Footer';
 import './App.css';
 import FacebookDownloader from './Pages/FacebookDownloader';
+import InstagramDownloader from './Pages/InstagramDownloader';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/youtube" element={<YouTudeDownloder />} />
           <Route path="/facebook" element={<FacebookDownloader />} />
+          <Route path="/instagram" element={<InstagramDownloader />} />
         </Routes>
         <Footer />
       </div>

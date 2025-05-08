@@ -199,3 +199,6 @@ body, html {
     opacity: 0;
   }
 }
+::-webkit-scrollbar{
+  display: none;
+}
