@@ -6,48 +6,105 @@ import '../Css/YouTubeDownloader.css';
 const YouTubeDownloader = () => {
   const [url, setUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [videoData, setVideoData] = useState(null);
+  const [contentData, setContentData] = useState(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [selectedQuality, setSelectedQuality] = useState('720p');
 
-  const handleSearch = () => {
-    if (!url || (!url.includes('youtube.com') && !url.includes('youtu.be'))) {
-      alert('Please enter a valid YouTube URL');
+  // Utility function to format duration in MM:SS or HH:MM:SS
+  const formatDuration = (seconds) => {
+    if (!seconds || typeof seconds !== 'number') return 'N/A';
+
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+
+    // Pad minutes and seconds with leading zeros if needed
+    const paddedMinutes = minutes.toString().padStart(2, '0');
+    const paddedSeconds = remainingSeconds.toString().padStart(2, '0');
+
+    if (hours > 0) {
+      // For durations >= 1 hour, use HH:MM:SS
+      return `${hours}:${paddedMinutes}:${paddedSeconds}`;
+    }
+    // For durations < 1 hour, use MM:SS
+    return `${minutes}:${paddedSeconds}`;
+  };
+
+  const validateUrl = (url) => {
+    const youtubeVideoRegex = /^(https:\/\/(www\.)?youtube\.com\/watch\?v=[\w-]+|https:\/\/youtu\.be\/[\w-]+)/;
+    return youtubeVideoRegex.test(url);
+  };
+
+  const handleSearch = async () => {
+    if (!url || !validateUrl(url)) {
+      alert('Please enter a valid YouTube video URL (e.g., https://www.youtube.com/watch?v=dQw4w9WgXcQ or https://youtu.be/dQw4w9WgXcQ)');
       return;
     }
     setIsLoading(true);
-    // Simulate fetching video metadata (replace with actual API call in production)
-    setTimeout(() => {
-      setIsLoading(false);
-      setVideoData({
-        title: "Sample YouTube Video Title",
-        thumbnail: "https://via.placeholder.com/320x180.png?text=Thumbnail",
-        duration: "3:45",
-        qualities: ['144p', '360p', '480p', '720p', '1080p'], // Simulated quality options
-        description: "This is a sample video description for demonstration purposes."
+    try {
+      const response = await fetch('http://localhost:5000/api/youtube/metadata', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url }),
       });
-    }, 2000);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch metadata. Please try again later.');
+      }
+
+      const data = await response.json();
+      setContentData(data);
+    } catch (error) {
+      alert(`Error fetching metadata: ${error.message}`);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleDownload = () => {
-    if (!videoData) {
-      alert('No video data available to download');
+  const handleDownload = async () => {
+    if (!contentData || !contentData.download_url) {
+      alert('No content data available to download');
       return;
     }
     setIsDownloading(true);
-    // Simulate a download process (replace with actual backend API call in production)
-    setTimeout(() => {
-      setIsDownloading(false);
-      // Simulate creating a downloadable link (for demo purposes)
-      const dummyVideoUrl = 'https://www.w3schools.com/html/mov_bbb.mp4'; // Placeholder video URL
+    try {
+      const downloadUrl = `${contentData.download_url}?quality=${selectedQuality}`;
+      const response = await fetch(`http://localhost:5000${downloadUrl}`, {
+        method: 'GET',
+      });
+
+      if (!response.ok) {
+        const contentType = response.headers.get('Content-Type');
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to download content');
+        }
+        throw new Error('Failed to download content');
+      }
+
+      const contentType = response.headers.get('Content-Type');
+      if (!contentType || !contentType.includes('video/mp4')) {
+        throw new Error('Unexpected response type. Expected a video file.');
+      }
+
+      const blob = await response.blob();
       const link = document.createElement('a');
-      link.href = dummyVideoUrl;
-      link.download = `${videoData.title}_${selectedQuality}.mp4`;
+      link.href = window.URL.createObjectURL(blob);
+      link.download = `youtube_video_${selectedQuality}.mp4`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      alert(`Download completed for: ${videoData.title} (${selectedQuality})`);
-    }, 2000);
+      window.URL.revokeObjectURL(link.href);
+
+      alert(`Download completed: YouTube Video (${selectedQuality})`);
+    } catch (error) {
+      alert(`Error downloading content: ${error.message}`);
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   const containerVariants = {
@@ -111,7 +168,7 @@ const YouTubeDownloader = () => {
           <input
             type="text"
             className="url-input"
-            placeholder="Enter YouTube URL (e.g., https://youtube.com/watch?v=example)"
+            placeholder="Enter YouTube video URL (e.g., https://youtu.be/example or https://youtube.com/watch?v=example)"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             disabled={isLoading}
@@ -136,21 +193,23 @@ const YouTubeDownloader = () => {
           </motion.button>
         </motion.div>
 
-        {videoData && (
+        {contentData && (
           <motion.div 
-            className="video-info"
+            className="content-info"
             variants={itemVariants}
             initial="hidden"
             animate="visible"
           >
             <img 
-              src={videoData.thumbnail} 
+              src={contentData.thumbnail} 
               alt="Video Thumbnail" 
-              className="video-thumbnail"
+              className="content-thumbnail"
             />
-            <h3 className="video-title">{videoData.title}</h3>
-            <p className="video-duration">Duration: {videoData.duration}</p>
-            <p className="video-description">{videoData.description}</p>
+            <h3 className="content-title">{contentData.type}</h3>
+            <p className="content-description">{contentData.description}</p>
+            {contentData.duration != null && (
+              <p className="content-duration">Duration: {formatDuration(contentData.duration)}</p>
+            )}
             <div className="quality-selector">
               <label htmlFor="quality">Select Quality: </label>
               <select
@@ -159,7 +218,7 @@ const YouTubeDownloader = () => {
                 onChange={(e) => setSelectedQuality(e.target.value)}
                 disabled={isDownloading}
               >
-                {videoData.qualities.map((quality) => (
+                {contentData.qualities.map((quality) => (
                   <option key={quality} value={quality}>
                     {quality}
                   </option>
@@ -181,7 +240,7 @@ const YouTubeDownloader = () => {
                   transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
                 />
               ) : (
-                'Download'
+                'Download Video'
               )}
             </motion.button>
           </motion.div>

@@ -5,14 +5,13 @@ import '../Css/InstagramDownloader.css';
 
 const InstagramDownloader = () => {
   const [url, setUrl] = useState('');
-  const [contentType, setContentType] = useState(null); // Initially null until user selects
-  const [isModalOpen, setIsModalOpen] = useState(true); // Modal opens on page load
+  const [contentType, setContentType] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [contentData, setContentData] = useState(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [selectedQuality, setSelectedQuality] = useState('720p');
 
-  // Open modal when the component mounts
   useEffect(() => {
     setIsModalOpen(true);
   }, []);
@@ -22,9 +21,14 @@ const InstagramDownloader = () => {
     setIsModalOpen(false);
   };
 
+  const validateUrl = (url) => {
+    const instagramPostRegex = /https:\/\/(www\.)?instagram\.com\/(p|reel)\/[A-Za-z0-9_-]+/;
+    return instagramPostRegex.test(url);
+  };
+
   const handleSearch = async () => {
-    if (!url || !url.includes('instagram.com')) {
-      alert('Please enter a valid Instagram URL');
+    if (!url || !validateUrl(url)) {
+      alert('Please enter a valid Instagram post or reel URL (e.g., https://www.instagram.com/p/shortcode/)');
       return;
     }
     setIsLoading(true);
@@ -38,13 +42,14 @@ const InstagramDownloader = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch metadata');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch metadata');
       }
 
       const data = await response.json();
       setContentData(data);
     } catch (error) {
-      alert(`Error: ${error.message}`);
+      alert(`Error fetching metadata: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
@@ -66,7 +71,8 @@ const InstagramDownloader = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to download content');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to download content');
       }
 
       const blob = await response.blob();
@@ -83,7 +89,7 @@ const InstagramDownloader = () => {
 
       alert(`Download completed: ${contentData.type}${contentType === 'Reel' ? ` (${selectedQuality})` : ''}`);
     } catch (error) {
-      alert(`Error: ${error.message}`);
+      alert(`Error downloading content: ${error.message}`);
     } finally {
       setIsDownloading(false);
     }
@@ -248,7 +254,6 @@ const InstagramDownloader = () => {
         )}
       </motion.div>
 
-      {/* Modal for content type selection */}
       {isModalOpen && (
         <motion.div
           className="modal-overlay"

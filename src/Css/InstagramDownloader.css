@@ -23,11 +23,15 @@
   
   .instagram-icon {
     background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    /* -webkit-background-clip: text;
+    background-clip: text; */
+    /* color: transparent; */
+    border-radius: 10px;
+    padding: 1px;
   }
-  
+  /* .instagram-icon {
+    color: #e1306c;
+  } */
   .instagram-downloader-title {
     font-size: 3.5rem;
     margin-bottom: 15px;
@@ -38,23 +42,31 @@
     color: transparent;
   }
   
-  .instagram-downloader-subtitle {
+  /* .instagram-downloader-subtitle {
     font-size: 1.3rem;
     margin-bottom: 50px;
     color: #e0e0e0;
     padding: 0 15px;
     max-width: 600px;
+  } */
+  .instagram-downloader-subtitle {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 30px;
   }
-  
-  .input-container {
+  /* .input-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 20px;
     width: 100%;
     max-width: 600px;
+  } */
+  .instagram-downloader-subtitle {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 30px;
   }
-  
   .url-input {
     width: 100%;
     padding: 15px 20px;

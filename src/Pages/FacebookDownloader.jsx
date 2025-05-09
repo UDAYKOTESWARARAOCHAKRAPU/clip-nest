@@ -6,48 +6,75 @@ import '../Css/FacebookDownloader.css';
 const FacebookDownloader = () => {
   const [url, setUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [videoData, setVideoData] = useState(null);
+  const [contentData, setContentData] = useState(null);
   const [isDownloading, setIsDownloading] = useState(false);
-  const [selectedQuality, setSelectedQuality] = useState('720p');
 
-  const handleSearch = () => {
-    if (!url || !url.includes('facebook.com')) {
-      alert('Please enter a valid Facebook video URL');
-      return;
-    }
-    setIsLoading(true);
-    // Simulate fetching video metadata (replace with actual API call in production)
-    setTimeout(() => {
-      setIsLoading(false);
-      setVideoData({
-        title: "Sample Facebook Video Title",
-        thumbnail: "https://via.placeholder.com/320x180.png?text=Thumbnail",
-        duration: "2:30",
-        qualities: ['360p', '480p', '720p', '1080p'], // Simulated quality options
-        description: "This is a sample Facebook video description for demonstration purposes."
-      });
-    }, 2000);
+  const validateUrl = (url) => {
+    const facebookPostRegex = /https:\/\/(www\.)?facebook\.com\/.*(posts|videos)\/\d+/;
+    return facebookPostRegex.test(url);
   };
 
-  const handleDownload = () => {
-    if (!videoData) {
-      alert('No video data available to download');
+  const handleSearch = async () => {
+    if (!url || !validateUrl(url)) {
+      alert('Please enter a valid Facebook video URL (e.g., https://www.facebook.com/username/posts/123456789)');
       return;
     }
     setIsLoading(true);
-    // Simulate a download process (replace with actual backend API call in production)
-    setTimeout(() => {
-      setIsDownloading(false);
-      // Simulate creating a downloadable link (for demo purposes)
-      const dummyVideoUrl = 'https://www.w3schools.com/html/mov_bbb.mp4'; // Placeholder video URL
+    try {
+      const response = await fetch('http://localhost:5000/api/facebook/metadata', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch metadata');
+      }
+
+      const data = await response.json();
+      setContentData(data);
+    } catch (error) {
+      alert(`Error fetching metadata: ${error.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDownload = async () => {
+    if (!contentData || !contentData.download_url) {
+      alert('No content data available to download');
+      return;
+    }
+    setIsDownloading(true);
+    try {
+      const response = await fetch(`http://localhost:5000${contentData.download_url}`, {
+        method: 'GET',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to download content');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = dummyVideoUrl;
-      link.download = `${videoData.title}_${selectedQuality}.mp4`;
+      link.href = url;
+      link.download = 'facebook_video.mp4';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      alert(`Download completed for: ${videoData.title} (${selectedQuality})`);
-    }, 2000);
+      window.URL.revokeObjectURL(url);
+
+      alert('Download completed: Facebook Video');
+    } catch (error) {
+      alert(`Error downloading content: ${error.message}`);
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   const containerVariants = {
@@ -111,7 +138,7 @@ const FacebookDownloader = () => {
           <input
             type="text"
             className="url-input"
-            placeholder="Enter Facebook video URL (e.g., https://facebook.com/video/example)"
+            placeholder="Enter Facebook video URL (e.g., https://facebook.com/username/posts/123456789)"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             disabled={isLoading}
@@ -136,36 +163,22 @@ const FacebookDownloader = () => {
           </motion.button>
         </motion.div>
 
-        {videoData && (
+        {contentData && (
           <motion.div 
-            className="video-info"
+            className="content-info"
             variants={itemVariants}
             initial="hidden"
             animate="visible"
           >
-            <img 
-              src={videoData.thumbnail} 
-              alt="Video Thumbnail" 
-              className="video-thumbnail"
-            />
-            <h3 className="video-title">{videoData.title}</h3>
-            <p className="video-duration">Duration: {videoData.duration}</p>
-            <p className="video-description">{videoData.description}</p>
-            <div className="quality-selector">
-              <label htmlFor="quality">Select Quality: </label>
-              <select
-                id="quality"
-                value={selectedQuality}
-                onChange={(e) => setSelectedQuality(e.target.value)}
-                disabled={isDownloading}
-              >
-                {videoData.qualities.map((quality) => (
-                  <option key={quality} value={quality}>
-                    {quality}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {contentData.thumbnail && (
+              <img 
+                src={contentData.thumbnail} 
+                alt="Video Thumbnail" 
+                className="content-thumbnail"
+              />
+            )}
+            <h3 className="content-title">{contentData.type}</h3>
+            <p className="content-description">{contentData.description}</p>
             <motion.button
               className="download-button"
               variants={buttonVariants}
@@ -181,7 +194,7 @@ const FacebookDownloader = () => {
                   transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
                 />
               ) : (
-                'Download'
+                'Download Video'
               )}
             </motion.button>
           </motion.div>

@@ -1,92 +1,106 @@
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
-import instaloader
 import os
-import shutil
-from datetime import datetime
+import logging
+# from platforms.instagram import get_instagram_metadata, download_instagram_content
+from platforms.facebook import get_facebook_metadata, download_facebook_content
+from platforms.youtube import get_youtube_metadata, download_youtube_content
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS to allow frontend requests
+CORS(app)
 
-# Initialize instaloader
-L = instaloader.Instaloader()
+# Set up logging
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-# Directory to store downloaded files temporarily
+# Ensure downloads directory exists
 DOWNLOAD_DIR = "downloads"
 if not os.path.exists(DOWNLOAD_DIR):
     os.makedirs(DOWNLOAD_DIR)
 
+# Instagram Routes
 @app.route('/api/instagram/metadata', methods=['POST'])
-def get_metadata():
+def instagram_metadata():
     data = request.get_json()
     url = data.get('url')
-    content_type = data.get('contentType')  # 'Photo' or 'Reel'
-
-    if not url or not content_type:
-        return jsonify({'error': 'URL and content type are required'}), 400
-
-    try:
-        # Extract shortcode from the URL
-        shortcode = url.split('/')[-2] if url.split('/')[-1] == '' else url.split('/')[-1]
-        if '?' in shortcode:
-            shortcode = shortcode.split('?')[0]
-
-        # Fetch the post
-        post = instaloader.Post.from_shortcode(L.context, shortcode)
-
-        # Prepare metadata based on content type
-        metadata = {
-            'type': content_type,
-            'thumbnail': post.url if content_type == 'Photo' else post.video_url,
-            'description': post.caption or 'No caption available'
-        }
-
-        if content_type == 'Reel':
-            metadata['duration'] = str(post.video_duration) + 's' if post.is_video else 'N/A'
-            metadata['qualities'] = ['360p', '480p', '720p']  # Simulated qualities for simplicity
-            metadata['download_url'] = f"/api/instagram/download/{shortcode}/reel"
-        else:
-            metadata['download_url'] = f"/api/instagram/download/{shortcode}/photo"
-
-        return jsonify(metadata), 200
-
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    content_type = data.get('contentType')
+    metadata, status = get_instagram_metadata(url, content_type)
+    return jsonify(metadata), status
 
 @app.route('/api/instagram/download/<shortcode>/<content_type>', methods=['GET'])
-def download_content(shortcode, content_type):
-    try:
-        # Fetch the post
-        post = instaloader.Post.from_shortcode(L.context, shortcode)
+def instagram_download(shortcode, content_type):
+    result, status = download_instagram_content(shortcode, content_type)
+    if status != 200:
+        return jsonify(result), status
 
-        # Generate a unique filename using timestamp
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        if content_type.lower() == 'reel':
-            filename = f"reel_{shortcode}_{timestamp}.mp4"
-        else:
-            filename = f"photo_{shortcode}_{timestamp}.jpg"
+    # Send the file
+    response = send_file(result['file_path'], as_attachment=True, download_name=result['filename'])
+    logger.debug(f"File sent for download: {result['filename']}")
 
-        file_path = os.path.join(DOWNLOAD_DIR, filename)
+    # Clean up
+    if result.get('temp_dir'):
+        os.remove(result['file_path'])
+        os.rmdir(result['temp_dir'])
+        logger.debug(f"Cleaned up files: {result['temp_dir']}, {result['file_path']}")
+    return response
 
-        # Download the content
-        if content_type.lower() == 'reel' and post.is_video:
-            L.download_video(post.video_url, file_path)
-        else:
-            L.download_pic(filename=file_path, url=post.url, mtime=post.date_utc)
+# Facebook Routes
+@app.route('/api/facebook/metadata', methods=['POST'])
+def facebook_metadata():
+    data = request.get_json()
+    url = data.get('url')
+    metadata, status = get_facebook_metadata(url)
+    return jsonify(metadata), status
 
-        # Send the file to the client
-        response = send_file(file_path, as_attachment=True, download_name=filename)
+@app.route('/api/facebook/download/<post_id>/<content_type>', methods=['GET'])
+def facebook_download(post_id, content_type):
+    if content_type.lower() != 'video':
+        return jsonify({'error': 'Only video downloads are supported for Facebook'}), 400
 
-        # Clean up the file after sending
-        os.remove(file_path)
+    result, status = download_facebook_content(post_id)
+    if status != 200:
+        return jsonify(result), status
 
-        return response
+    # Send the file
+    response = send_file(result['file_path'], as_attachment=True, download_name=result['filename'])
+    logger.debug(f"File sent for download: {result['filename']}")
 
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    # Clean up
+    os.remove(result['file_path'])
+    logger.debug(f"Cleaned up file: {result['file_path']}")
+    return response
+
+# YouTube Routes
+@app.route('/api/youtube/metadata', methods=['POST'])
+def youtube_metadata():
+    data = request.get_json()
+    url = data.get('url')
+    metadata, status = get_youtube_metadata(url)
+    return jsonify(metadata), status
+
+@app.route('/api/youtube/download/<video_id>/<content_type>', methods=['GET'])
+def youtube_download(video_id, content_type):
+    if content_type.lower() != 'video':
+        return jsonify({'error': 'Only video downloads are supported for YouTube'}), 400
+
+    quality = request.args.get('quality', '720p')
+    result, status = download_youtube_content(video_id, quality)
+    if status != 200:
+        return jsonify(result), status
+
+    # Send the file
+    response = send_file(result['file_path'], as_attachment=True, download_name=result['filename'])
+    logger.debug(f"File sent for download: {result['filename']}")
+
+    # Clean up
+    os.remove(result['file_path'])
+    os.rmdir(result['temp_dir'])
+    logger.debug(f"Cleaned up files: {result['temp_dir']}, {result['file_path']}")
+    return response
 
 @app.route('/api/health', methods=['GET'])
 def health_check():
+    logger.debug("Health check endpoint called")
     return jsonify({'status': 'healthy'}), 200
 
 if __name__ == '__main__':

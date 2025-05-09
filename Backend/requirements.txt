@@ -1,3 +1,6 @@
-Flask==2.2.5
-Flask-CORS==4.0.1
-instaloader==4.13.1
+Flask==3.0.3
+   Flask-CORS==4.0.1
+   instaloader>=4.14.0
+   facebook-scraper==0.2.59
+   yt-dlp>=2024.10.22
+   lxml_html_clean
