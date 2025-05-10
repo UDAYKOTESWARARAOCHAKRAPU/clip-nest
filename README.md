@@ -68,3 +68,62 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+
+
+Clip-Nest
+A tool to download videos and images from YouTube, Facebook, and Instagram.
+Backend Setup
+Prerequisites
+
+Python 3.8+
+pip
+
+Installation
+
+Navigate to the backend directory:cd backend
+
+
+Create a virtual environment:python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+
+Install dependencies:pip install -r requirements.txt
+
+
+Ensure FFmpeg is installed (required for yt-dlp):
+On Ubuntu: sudo apt-get install ffmpeg
+On macOS: brew install ffmpeg
+On Windows: Download from FFmpeg website and add to PATH
+
+
+
+Running the Backend
+
+Start the Flask server:python app.py
+
+
+The API will be available at http://localhost:5000/api.
+
+API Endpoints
+
+POST /api/download
+Body: { "url": "<media_url>", "platform": "youtube|instagram|facebook" }
+Response: { "download_url": "/static/downloads/<filename>" } or { "error": "<message>" }
+
+
+
+Example Request
+curl -X POST http://localhost:5000/api/download \
+-H "Content-Type: application/json" \
+-d '{"url": "https://www.youtube.com/watch?v=example", "platform": "youtube"}'
+
+Notes
+
+Facebook downloading is currently a placeholder due to authentication requirements.
+Ensure compliance with platform Terms of Service and copyright laws.
+
+Contributing
+Feel free to open issues or submit pull requests!
+License
+MIT

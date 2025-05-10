@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import '../Css/YouTubeDownloader.css';
+import axios from 'axios';
 
 const YouTubeDownloader = () => {
   const [url, setUrl] = useState('');
@@ -18,90 +19,82 @@ const YouTubeDownloader = () => {
     const minutes = Math.floor((seconds % 3600) / 60);
     const remainingSeconds = Math.floor(seconds % 60);
 
-    // Pad minutes and seconds with leading zeros if needed
     const paddedMinutes = minutes.toString().padStart(2, '0');
     const paddedSeconds = remainingSeconds.toString().padStart(2, '0');
 
     if (hours > 0) {
-      // For durations >= 1 hour, use HH:MM:SS
       return `${hours}:${paddedMinutes}:${paddedSeconds}`;
     }
-    // For durations < 1 hour, use MM:SS
     return `${minutes}:${paddedSeconds}`;
+  };
+
+  const cleanYouTubeUrl = (url) => {
+    // Remove query parameters except 'v' for youtube.com/watch URLs
+    const regex = /^(https:\/\/(www\.)?youtube\.com\/watch\?v=[\w-]+|https:\/\/youtu\.be\/[\w-]+)/;
+    const match = url.match(regex);
+    if (!match) return url;
+    let cleanUrl = match[0];
+    if (cleanUrl.includes('youtube.com/watch')) {
+      const vMatch = url.match(/v=([\w-]+)/);
+      if (vMatch) {
+        cleanUrl = `https://www.youtube.com/watch?v=${vMatch[1]}`;
+      }
+    }
+    return cleanUrl;
   };
 
   const validateUrl = (url) => {
     const youtubeVideoRegex = /^(https:\/\/(www\.)?youtube\.com\/watch\?v=[\w-]+|https:\/\/youtu\.be\/[\w-]+)/;
-    return youtubeVideoRegex.test(url);
+    return youtubeVideoRegex.test(cleanYouTubeUrl(url));
   };
 
   const handleSearch = async () => {
-    if (!url || !validateUrl(url)) {
+    const cleanedUrl = cleanYouTubeUrl(url);
+    if (!cleanedUrl || !validateUrl(cleanedUrl)) {
       alert('Please enter a valid YouTube video URL (e.g., https://www.youtube.com/watch?v=dQw4w9WgXcQ or https://youtu.be/dQw4w9WgXcQ)');
       return;
     }
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/api/youtube/metadata', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ url }),
+      const response = await axios.post('http://localhost:5000/api/youtube/metadata', {
+        url: cleanedUrl,
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to fetch metadata. Please try again later.');
-      }
-
-      const data = await response.json();
-      setContentData(data);
+      setContentData(response.data);
     } catch (error) {
-      alert(`Error fetching metadata: ${error.message}`);
+      console.error('Metadata fetch error:', error.response || error);
+      alert(`Error fetching metadata: ${error.response?.data?.error || error.message}`);
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleDownload = async () => {
+    const cleanedUrl = cleanYouTubeUrl(url);
     if (!contentData || !contentData.download_url) {
       alert('No content data available to download');
       return;
     }
     setIsDownloading(true);
     try {
-      const downloadUrl = `${contentData.download_url}?quality=${selectedQuality}`;
-      const response = await fetch(`http://localhost:5000${downloadUrl}`, {
-        method: 'GET',
+      const response = await axios.post('http://localhost:5000/api/download', {
+        url: cleanedUrl,
+        platform: 'youtube',
+        quality: selectedQuality,
       });
 
-      if (!response.ok) {
-        const contentType = response.headers.get('Content-Type');
-        if (contentType && contentType.includes('application/json')) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to download content');
-        }
-        throw new Error('Failed to download content');
-      }
-
-      const contentType = response.headers.get('Content-Type');
-      if (!contentType || !contentType.includes('video/mp4')) {
-        throw new Error('Unexpected response type. Expected a video file.');
-      }
-
-      const blob = await response.blob();
+      const downloadUrl = `http://localhost:5000${response.data.download_url}`;
       const link = document.createElement('a');
-      link.href = window.URL.createObjectURL(blob);
+      link.href = downloadUrl;
       link.download = `youtube_video_${selectedQuality}.mp4`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      window.URL.revokeObjectURL(link.href);
 
       alert(`Download completed: YouTube Video (${selectedQuality})`);
     } catch (error) {
-      alert(`Error downloading content: ${error.message}`);
+      console.error('Download error:', error.response || error);
+      const errorMessage = error.response?.data?.error || error.message;
+      alert(`Error downloading content: ${errorMessage}`);
     } finally {
       setIsDownloading(false);
     }
@@ -109,40 +102,40 @@ const YouTubeDownloader = () => {
 
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: { 
+    visible: {
       opacity: 1,
-      transition: { 
+      transition: {
         duration: 1,
         when: "beforeChildren",
-        staggerChildren: 0.4
-      }
-    }
+        staggerChildren: 0.4,
+      },
+    },
   };
 
   const itemVariants = {
     hidden: { y: 50, opacity: 0 },
-    visible: { 
-      y: 0, 
-      opacity: 1, 
-      transition: { 
-        duration: 0.8, 
-        ease: "easeOut" 
-      }
-    }
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.8,
+        ease: "easeOut",
+      },
+    },
   };
 
   const buttonVariants = {
-    hover: { 
-      scale: 1.05, 
-      boxShadow: "0 0 15px rgba(255, 0, 0, 0.5)", 
-      transition: { duration: 0.3 }
+    hover: {
+      scale: 1.05,
+      boxShadow: "0 0 15px rgba(255, 0, 0, 0.5)",
+      transition: { duration: 0.3 },
     },
-    tap: { scale: 0.95 }
+    tap: { scale: 0.95 },
   };
 
   return (
     <div className="youtube-downloader-wrapper">
-      <motion.div 
+      <motion.div
         className="youtube-downloader-container"
         variants={containerVariants}
         initial="hidden"
@@ -150,21 +143,13 @@ const YouTubeDownloader = () => {
       >
         <motion.div className="title-container" variants={itemVariants}>
           <YouTubeIcon fontSize="large" className="youtube-icon" />
-          <h1 className="youtube-downloader-title">
-            YouTube Downloader
-          </h1>
+          <h1 className="youtube-downloader-title">YouTube Downloader</h1>
         </motion.div>
-        <motion.p 
-          className="youtube-downloader-subtitle" 
-          variants={itemVariants}
-        >
+        <motion.p className="youtube-downloader-subtitle" variants={itemVariants}>
           Paste the YouTube video URL below to search:
         </motion.p>
 
-        <motion.div 
-          className="input-container"
-          variants={itemVariants}
-        >
+        <motion.div className="input-container" variants={itemVariants}>
           <input
             type="text"
             className="url-input"
@@ -194,17 +179,13 @@ const YouTubeDownloader = () => {
         </motion.div>
 
         {contentData && (
-          <motion.div 
+          <motion.div
             className="content-info"
             variants={itemVariants}
             initial="hidden"
             animate="visible"
           >
-            <img 
-              src={contentData.thumbnail} 
-              alt="Video Thumbnail" 
-              className="content-thumbnail"
-            />
+            <img src={contentData.thumbnail} alt="Video Thumbnail" className="content-thumbnail" />
             <h3 className="content-title">{contentData.type}</h3>
             <p className="content-description">{contentData.description}</p>
             {contentData.duration != null && (
